@@ -24,10 +24,10 @@ type Pget struct {
 	Procs      int
 	URLs       []string
 	TargetURLs []string
-	args       []string
-	timeout    int
-	useragent  string
-	referer    string
+	Args       []string
+	Timeout    int
+	Useragent  string
+	Referer    string
 }
 
 type ignore struct {
@@ -44,7 +44,7 @@ func New() *Pget {
 		Trace:   false,
 		Utils:   &Data{},
 		Procs:   runtime.NumCPU(), // default
-		timeout: 10,
+		Timeout: 10,
 	}
 }
 
@@ -92,8 +92,14 @@ func (pget *Pget) Ready() error {
 	}
 
 	var opts Options
-	if err := pget.parseOptions(&opts, os.Args[1:]); err != nil {
-		return errors.Wrap(err, "failed to parse command line args")
+	if len(pget.Args) < 2 {
+		if err := pget.parseOptions(&opts, os.Args[1:]); err != nil {
+			return errors.Wrap(err, "failed to parse command line Args")
+		}
+	}else{
+		if err := pget.parseOptions(&opts, pget.Args[1:]); err != nil {
+			return errors.Wrap(err, "failed to parse command line Args")
+		}
 	}
 
 	if opts.Trace {
@@ -105,7 +111,7 @@ func (pget *Pget) Ready() error {
 	}
 
 	if opts.Timeout > 0 {
-		pget.timeout = opts.Timeout
+		pget.Timeout = opts.Timeout
 	}
 
 	if err := pget.parseURLs(); err != nil {
@@ -117,11 +123,11 @@ func (pget *Pget) Ready() error {
 	}
 
 	if opts.UserAgent != "" {
-		pget.useragent = opts.UserAgent
+		pget.Useragent = opts.UserAgent
 	}
 
 	if opts.Referer != "" {
-		pget.referer = opts.Referer
+		pget.Referer = opts.Referer
 	}
 
 	if opts.TargetDir != "" {
@@ -192,15 +198,15 @@ func (pget *Pget) parseOptions(opts *Options, argv []string) error {
 		return pget.makeIgnoreErr()
 	}
 
-	pget.args = o
+	pget.Args = o
 
 	return nil
 }
 
 func (pget *Pget) parseURLs() error {
 
-	// find url in args
-	for _, argv := range pget.args {
+	// find url in Args
+	for _, argv := range pget.Args {
 		if govalidator.IsURL(argv) {
 			pget.URLs = append(pget.URLs, argv)
 		}

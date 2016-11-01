@@ -31,7 +31,7 @@ func isLastProc(i, procs uint) bool {
 // Checking is check to can request
 func (p *Pget) Checking() error {
 
-	ctx, cancelAll := context.WithTimeout(context.Background(), time.Duration(p.timeout)*time.Second)
+	ctx, cancelAll := context.WithTimeout(context.Background(), time.Duration(p.Timeout)*time.Second)
 
 	ch := MakeCh()
 	defer ch.Close()
@@ -220,13 +220,13 @@ func (p Pget) MakeResponse(r Range, url string) (*http.Response, error) {
 	req.Header.Set("Range", fmt.Sprintf("bytes=%d-%d", r.low, r.high))
 
 	// set useragent
-	if p.useragent != "" {
-		req.Header.Set("User-Agent", p.useragent)
+	if p.Useragent != "" {
+		req.Header.Set("User-Agent", p.Useragent)
 	}
 
 	// set referer
-	if p.referer != "" {
-		req.Header.Set("Referer", p.referer)
+	if p.Referer != "" {
+		req.Header.Set("Referer", p.Referer)
 	}
 
 	return http.DefaultClient.Do(req)
